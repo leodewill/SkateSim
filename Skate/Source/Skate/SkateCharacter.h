@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "SkateComponent.h"
 #include "SkateCharacter.generated.h"
 
 class USpringArmComponent;
@@ -27,7 +28,7 @@ class ASkateCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
+
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -47,6 +48,8 @@ class ASkateCharacter : public ACharacter
 public:
 	ASkateCharacter();
 	
+	// To add mapping context
+	virtual void Tick(float DeltaSeconds);
 
 protected:
 
@@ -56,6 +59,11 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	USkateComponent* SkateComponent;
+
+	FVector2D MovementVector;
 
 protected:
 	// APawn interface

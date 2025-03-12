@@ -50,8 +50,20 @@ ASkateCharacter::ASkateCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// Create skate
+	SkateComponent = CreateDefaultSubobject<USkateComponent>(TEXT("SkateComponent"));
+	SkateComponent->SetupAttachment(RootComponent);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void ASkateCharacter::Tick(float DeltaSeconds)
+{
+	if (SkateComponent->IsMoving())
+	{
+		AddMovementInput(GetActorForwardVector(), SkateComponent->GetMovementSpeed());
+	}
 }
 
 void ASkateCharacter::BeginPlay()
@@ -95,25 +107,8 @@ void ASkateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ASkateCharacter::Move(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
+	SkateComponent->SetMovementInput(Value.Get<FVector2D>());
+	AddMovementInput(GetActorRightVector(), SkateComponent->GetTurnSpeed());
 }
 
 void ASkateCharacter::Look(const FInputActionValue& Value)
