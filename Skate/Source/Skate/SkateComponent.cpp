@@ -26,7 +26,7 @@ void USkateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		}
 		else if (MovementInput.Y < 0.f)
 		{
-			MovementSpeed = FMath::Max(MovementSpeed + DecelerationTime * MovementInput.Y * DeltaTime / DecelerationTime, 0.f);
+			MovementSpeed = FMath::Max(MovementSpeed + MovementInput.Y * DeltaTime / DecelerationTime, 0.f);
 			if (FMath::IsNearlyZero(MovementSpeed))
 			{
 				bIsMoving = false;
@@ -39,4 +39,32 @@ void USkateComponent::SetMovementInput(FVector2D Input)
 {
 	MovementInput = Input;
 	bIsMoving = true;
+}
+
+void USkateComponent::ProcessHit(FVector Normal, FVector& OutEscapeDirection)
+{
+	OutEscapeDirection = GetForwardVector();
+
+	// Checking if the hit wasn't vertical
+	double VerticalAngle = FMath::RadiansToDegrees(FMath::Asin(Normal.Z));
+	if (FMath::Abs(VerticalAngle) > VerticalHitThreshold)
+	{
+		OutEscapeDirection = FVector::ZeroVector;
+		return;
+	}
+
+	// Checking incident angle. Using sin to keep direction
+	FVector HorizontalNormal = FVector::VectorPlaneProject(Normal, FVector::UpVector).GetSafeNormal();
+	double Incidence = FVector::DotProduct(-HorizontalNormal, GetRightVector());
+	double IncidentAngle = FMath::RadiansToDegrees(FMath::Asin(Incidence));
+	if (FMath::Abs(IncidentAngle) <= MinHitAngle)
+	{
+		MovementSpeed = 0.f;
+		bIsMoving = false;
+	}
+	else if (FMath::Abs(IncidentAngle) <= MaxHitAngle)
+	{
+		MovementSpeed *= 1.f - FMath::Abs(Incidence);
+		OutEscapeDirection = HorizontalNormal.RotateAngleAxis(FMath::Sign(Incidence) * 90.f, FVector::UpVector);
+	}
 }

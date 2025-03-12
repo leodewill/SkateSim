@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "SkateComponent.h"
+#include "Components/BoxComponent.h"
 #include "SkateCharacter.generated.h"
 
 class USpringArmComponent;
@@ -56,14 +57,16 @@ protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
+	/** Called for movement input */
+	void StopMoving(const FInputActionValue& Value);
+
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	/** Skate Component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
 	USkateComponent* SkateComponent;
 
-	FVector2D MovementVector;
 
 protected:
 	// APawn interface
@@ -71,6 +74,12 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+
+private:
+	UFUNCTION()
+	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+
+	bool bInputDirectionChanged = false;
 
 public:
 	/** Returns CameraBoom subobject **/

@@ -68,8 +68,25 @@ void ASkateCharacter::Tick(float DeltaSeconds)
 
 void ASkateCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
+
+	bInputDirectionChanged = false;
+	OnActorHit.AddUniqueDynamic(this, &ASkateCharacter::OnHit);
+}
+
+void ASkateCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (SkateComponent->IsMoving())
+	{
+		FVector EscapeDirection;
+		SkateComponent->ProcessHit(Hit.Normal, EscapeDirection);
+
+		if (!EscapeDirection.IsNearlyZero())
+		{
+			AddMovementInput(EscapeDirection, SkateComponent->GetMovementSpeed());
+			bInputDirectionChanged = false;
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,6 +112,7 @@ void ASkateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkateCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASkateCharacter::StopMoving);
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASkateCharacter::Look);
@@ -107,8 +125,18 @@ void ASkateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ASkateCharacter::Move(const FInputActionValue& Value)
 {
-	SkateComponent->SetMovementInput(Value.Get<FVector2D>());
-	AddMovementInput(GetActorRightVector(), SkateComponent->GetTurnSpeed());
+	if (GetMovementComponent()->IsMovingOnGround())
+	{
+		FVector2D MovementDirection = Value.Get<FVector2D>();
+		SkateComponent->SetMovementInput(MovementDirection);
+		AddMovementInput(GetActorRightVector(), SkateComponent->GetTurnSpeed());
+		bInputDirectionChanged = !FMath::IsNearlyZero(MovementDirection.X);
+	}
+}
+
+void ASkateCharacter::StopMoving(const FInputActionValue& Value)
+{
+	SkateComponent->SetMovementInput(FVector2D::ZeroVector);
 }
 
 void ASkateCharacter::Look(const FInputActionValue& Value)

@@ -27,6 +27,9 @@ public:
 
 	bool IsMoving() const { return bIsMoving; }
 
+	// Called by the owner when the player gets hit. Returns the new movement direction
+	void ProcessHit(FVector Normal, FVector& OutEscapeDirection);
+
 protected:
 	/** The time it takes for the skate to reach full speed with forward input */
 	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
@@ -37,8 +40,20 @@ protected:
 	float DecelerationTime = 2.f;
 
 	/** The rotation multiplier applied to the input when the player turns */
-	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true", ClampMin = "0", ClampMax = "1", UIMin = "0", UIMax = "90"))
 	float TurnMultiplier = .03f;
+
+	/** The minimum incident angle for a horizontal hit to redirect the skate. A lower angle will stop the skate. */
+	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true", ClampMin = "0", ClampMax = "90", UIMin = "0", UIMax = "90"))
+	float MinHitAngle = 30.f;
+
+	/** The maximum incident angle for a horizontal hit to redirect the skate. A higher angle won't change velocity. */
+	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true", ClampMin = "0", ClampMax = "90", UIMin = "0", UIMax = "90"))
+	float MaxHitAngle = 87.f;
+
+	/** The minimum angle for an obstable hit to be considered vertical */
+	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true", ClampMin = "0", ClampMax = "90", UIMin = "0", UIMax = "90"))
+	float VerticalHitThreshold = 30.f;
 
 private:
 	float MovementSpeed = 0.f;
