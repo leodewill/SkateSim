@@ -64,7 +64,6 @@ void USkateComponent::ProcessHit(FVector Normal, FVector& OutEscapeDirection)
 	}
 	else if (FMath::Abs(IncidentAngle) <= MaxHitAngle)
 	{
-		MovementSpeed *= 1.f - FMath::Abs(Incidence);
 		OutEscapeDirection = HorizontalNormal.RotateAngleAxis(FMath::Sign(Incidence) * 90.f, FVector::UpVector);
 	}
 }
