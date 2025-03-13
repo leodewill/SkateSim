@@ -72,14 +72,17 @@ void ASkateCharacter::Jump()
 {
 	Super::Jump();
 
-	JumpLocation = SkateComponent->GetComponentLocation();
-	TArray<FHitResult> Hits = GetHitsInLine(JumpLocation, JumpLocation + MaxObstacleDistance * GetActorForwardVector());
-	for (const FHitResult& Hit : Hits)
+	if (GetMovementComponent()->IsMovingOnGround())
 	{
-		UObstacleComponent* Obstacle = Hit.GetActor()->GetComponentByClass<UObstacleComponent>();
-		if (IsValid(Obstacle))
+		JumpLocation = SkateComponent->GetComponentLocation();
+		TArray<FHitResult> Hits = GetHitsInLine(JumpLocation, JumpLocation + MaxObstacleDistance * GetActorForwardVector());
+		for (const FHitResult& Hit : Hits)
 		{
-			AvailableObstacles.Add(Obstacle);
+			UObstacleComponent* Obstacle = Hit.GetActor()->GetComponentByClass<UObstacleComponent>();
+			if (IsValid(Obstacle))
+			{
+				AvailableObstacles.Add(Obstacle);
+			}
 		}
 	}
 }
