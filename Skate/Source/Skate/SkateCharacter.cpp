@@ -72,8 +72,9 @@ void ASkateCharacter::Jump()
 {
 	Super::Jump();
 
-	TArray<FHitResult> Hits = GetHitsInLine(GetActorLocation(), GetActorLocation() + MaxObstacleDistance * GetActorForwardVector());
-	for (FHitResult Hit : Hits)
+	JumpLocation = SkateComponent->GetComponentLocation();
+	TArray<FHitResult> Hits = GetHitsInLine(JumpLocation, JumpLocation + MaxObstacleDistance * GetActorForwardVector());
+	for (const FHitResult& Hit : Hits)
 	{
 		UObstacleComponent* Obstacle = Hit.GetActor()->GetComponentByClass<UObstacleComponent>();
 		if (IsValid(Obstacle))
@@ -81,8 +82,6 @@ void ASkateCharacter::Jump()
 			AvailableObstacles.Add(Obstacle);
 		}
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("JUMP: %d obstacles"), AvailableObstacles.Num())
 }
 
 void ASkateCharacter::StopJumping()
@@ -94,6 +93,21 @@ void ASkateCharacter::StopJumping()
 
 void ASkateCharacter::Landed(const FHitResult& Hit)
 {
+	TArray<UObstacleComponent*> JumpedObstacles;
+
+	FVector JumpDelta = SkateComponent->GetComponentLocation() - JumpLocation;
+	JumpDelta.Z = 0.f;
+
+	TArray<FHitResult> Hits = GetHitsInLine(JumpLocation, JumpLocation + JumpDelta);
+	for (const FHitResult& ObstacleHit : Hits)
+	{
+		UObstacleComponent* Obstacle = ObstacleHit.GetActor()->GetComponentByClass<UObstacleComponent>();
+		if (IsValid(Obstacle) && Obstacle->GetOwner() != Hit.GetActor() && AvailableObstacles.Contains(Obstacle))
+		{
+			Obstacle->NotifyCompleteJump();
+		}
+	}
+
 	AvailableObstacles.Empty();
 }
 
@@ -107,6 +121,12 @@ void ASkateCharacter::BeginPlay()
 
 void ASkateCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UObstacleComponent* Obstacle = Hit.GetActor()->GetComponentByClass<UObstacleComponent>();
+	if (IsValid(Obstacle) && AvailableObstacles.Contains(Obstacle))
+	{
+		AvailableObstacles.Remove(Obstacle);
+	}
+
 	if (SkateComponent->IsMoving())
 	{
 		FVector EscapeDirection;

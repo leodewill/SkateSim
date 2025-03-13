@@ -76,11 +76,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
 	USkateComponent* SkateComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
 	float MaxObstacleDistance = 1000.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
-	float ObstacleDetectionRadius = 100.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
+	float ObstacleDetectionRadius = 20.f;
 
 protected:
 	// APawn interface
@@ -94,6 +94,8 @@ private:
 	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	TArray<FHitResult> GetHitsInLine(FVector LineStart, FVector LineEnd);
+
+	FVector JumpLocation;
 
 	TArray<UObstacleComponent*> AvailableObstacles;
 

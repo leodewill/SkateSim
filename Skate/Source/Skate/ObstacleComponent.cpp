@@ -9,3 +9,8 @@ UObstacleComponent::UObstacleComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UObstacleComponent::NotifyCompleteJump()
+{
+	UE_LOG(LogTemp, Log, TEXT("Obstacle Jumped"))
+}
+

@@ -15,4 +15,6 @@ class SKATE_API UObstacleComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UObstacleComponent();
+
+	void NotifyCompleteJump();
 };
