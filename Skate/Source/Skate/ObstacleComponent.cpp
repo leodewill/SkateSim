@@ -3,6 +3,7 @@
 
 #include "ObstacleComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "PointSubsystem.h"
 
 UObstacleComponent::UObstacleComponent()
 {
@@ -11,6 +12,7 @@ UObstacleComponent::UObstacleComponent()
 
 void UObstacleComponent::NotifyCompleteJump()
 {
-	UE_LOG(LogTemp, Log, TEXT("Obstacle Jumped"))
+	GetWorld()->GetGameInstance()->GetSubsystem<UPointSubsystem>()->Score(ScoreReward);
+	OnScored.Broadcast(ScoreReward);
 }
 
