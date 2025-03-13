@@ -14,15 +14,3 @@ ASkateGameMode::ASkateGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 }
-
-void ASkateGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
-{
-	Super::InitGame(MapName, Options, ErrorMessage);
-
-	GetWorld()->GetGameInstance()->GetSubsystem<UPointSubsystem>()->OnScoreChanged.AddUniqueDynamic(this, &ASkateGameMode::OnPlayerScored);
-}
-
-void ASkateGameMode::OnPlayerScored(int Value, const FScoringData& Data)
-{
-	K2_OnPlayerScored(Value, Data);
-}

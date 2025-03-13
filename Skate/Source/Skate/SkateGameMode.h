@@ -13,16 +13,6 @@ class ASkateGameMode : public AGameModeBase
 
 public:
 	ASkateGameMode();
-
-	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
-
-private:
-	UFUNCTION()
-	void OnPlayerScored(int Value, const FScoringData& Data);
-
-protected:
-	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnPlayerScored")
-	void K2_OnPlayerScored(int Value, const FScoringData& Data);
 };
 
 
