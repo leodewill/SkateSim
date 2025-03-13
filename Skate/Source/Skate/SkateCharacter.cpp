@@ -148,7 +148,7 @@ TArray<FHitResult> ASkateCharacter::GetHitsInLine(FVector LineStart, FVector Lin
 	TArray<FHitResult> Hits;
 	ActorsToIgnore.Add(this);
 
-	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), LineStart, LineEnd, ObstacleDetectionRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hits, true);
+	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), LineStart, LineEnd, ObstacleDetectionRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, Hits, true);
 	return Hits;
 }
 
