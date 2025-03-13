@@ -13,7 +13,7 @@ UCLASS()
 class SKATE_API USkateComponent : public UArrowComponent
 {
 	GENERATED_BODY()
-	
+
 public:
 	USkateComponent();
 
@@ -26,6 +26,9 @@ public:
 	float GetTurnSpeed() const { return MovementInput.X * TurnMultiplier; }
 
 	bool IsMoving() const { return bIsMoving; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsPushing() const { return MovementInput.Y > 0.f; }
 
 	// Called by the owner when the player gets hit. Returns the new movement direction
 	void ProcessHit(FVector Normal, FVector& OutEscapeDirection);
