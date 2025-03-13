@@ -10,6 +10,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "ObstacleComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -66,12 +68,41 @@ void ASkateCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+void ASkateCharacter::Jump()
+{
+	Super::Jump();
+
+	TArray<FHitResult> Hits = GetHitsInLine(GetActorLocation(), GetActorLocation() + MaxObstacleDistance * GetActorForwardVector());
+	for (FHitResult Hit : Hits)
+	{
+		UObstacleComponent* Obstacle = Hit.GetActor()->GetComponentByClass<UObstacleComponent>();
+		if (IsValid(Obstacle))
+		{
+			AvailableObstacles.Add(Obstacle);
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("JUMP: %d obstacles"), AvailableObstacles.Num())
+}
+
+void ASkateCharacter::StopJumping()
+{
+	Super::StopJumping();
+
+	
+}
+
+void ASkateCharacter::Landed(const FHitResult& Hit)
+{
+	AvailableObstacles.Empty();
+}
+
 void ASkateCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bInputDirectionChanged = false;
 	OnActorHit.AddUniqueDynamic(this, &ASkateCharacter::OnHit);
+	AvailableObstacles.Empty();
 }
 
 void ASkateCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
@@ -84,9 +115,18 @@ void ASkateCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector Norma
 		if (!EscapeDirection.IsNearlyZero())
 		{
 			AddMovementInput(EscapeDirection, SkateComponent->GetMovementSpeed());
-			bInputDirectionChanged = false;
 		}
 	}
+}
+
+TArray<FHitResult> ASkateCharacter::GetHitsInLine(FVector LineStart, FVector LineEnd)
+{
+	TArray<AActor*> ActorsToIgnore;
+	TArray<FHitResult> Hits;
+	ActorsToIgnore.Add(this);
+
+	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), LineStart, LineEnd, ObstacleDetectionRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hits, true);
+	return Hits;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -107,8 +147,8 @@ void ASkateCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASkateCharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASkateCharacter::StopJumping);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkateCharacter::Move);
@@ -130,7 +170,6 @@ void ASkateCharacter::Move(const FInputActionValue& Value)
 		FVector2D MovementDirection = Value.Get<FVector2D>();
 		SkateComponent->SetMovementInput(MovementDirection);
 		AddMovementInput(GetActorRightVector(), SkateComponent->GetTurnSpeed());
-		bInputDirectionChanged = !FMath::IsNearlyZero(MovementDirection.X);
 	}
 }
 

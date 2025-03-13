@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "SkateComponent.h"
 #include "Components/BoxComponent.h"
+#include "ObstacleComponent.h"
 #include "SkateCharacter.generated.h"
 
 class USpringArmComponent;
@@ -52,6 +53,14 @@ public:
 	// To add mapping context
 	virtual void Tick(float DeltaSeconds);
 
+	/** Called for jump input */
+	virtual void Jump() override;
+
+	/** Called for jump input */
+	virtual void StopJumping() override;
+
+	virtual void Landed(const FHitResult& Hit) override;
+
 protected:
 
 	/** Called for movement input */
@@ -67,6 +76,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
 	USkateComponent* SkateComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
+	float MaxObstacleDistance = 1000.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skate, meta = (AllowPrivateAccess = "true"))
+	float ObstacleDetectionRadius = 100.f;
 
 protected:
 	// APawn interface
@@ -79,7 +93,9 @@ private:
 	UFUNCTION()
 	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
-	bool bInputDirectionChanged = false;
+	TArray<FHitResult> GetHitsInLine(FVector LineStart, FVector LineEnd);
+
+	TArray<UObstacleComponent*> AvailableObstacles;
 
 public:
 	/** Returns CameraBoom subobject **/
