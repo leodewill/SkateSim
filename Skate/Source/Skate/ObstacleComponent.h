@@ -24,6 +24,6 @@ protected:
 	UPROPERTY(BlueprintAssignable)
 	FObstacleScoreSignature OnScored;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Points")
+	UPROPERTY(EditAnywhere, Category = "Points")
 	FScoringData ScoreReward;
 };
