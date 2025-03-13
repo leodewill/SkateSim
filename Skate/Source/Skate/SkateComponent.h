@@ -31,13 +31,17 @@ public:
 	void ProcessHit(FVector Normal, FVector& OutEscapeDirection);
 
 protected:
+	/** The speed that the skate starts whenever the forward input begins */
+	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
+	float MinPushUpSpeed = .5f;
+
 	/** The time it takes for the skate to reach full speed with forward input */
 	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	float AccelerationTime = .5f;
+	float AccelerationTime = 5.f;
 
 	/** The time it takes for the skate to stop with no input */
 	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true"))
-	float DecelerationTime = 2.f;
+	float DecelerationTime = 5.f;
 
 	/** The rotation multiplier applied to the input when the player turns */
 	UPROPERTY(EditDefaultsOnly, Category = "Settings", meta = (AllowPrivateAccess = "true", ClampMin = "0", ClampMax = "1", UIMin = "0", UIMax = "90"))

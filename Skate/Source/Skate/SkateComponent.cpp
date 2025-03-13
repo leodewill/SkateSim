@@ -22,7 +22,7 @@ void USkateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	{
 		if (MovementInput.Y > 0.f)
 		{
-			MovementSpeed = FMath::Min(MovementSpeed + MovementInput.Y * DeltaTime / AccelerationTime, 1.f);
+			MovementSpeed = FMath::Clamp(MovementSpeed + MovementInput.Y * DeltaTime / AccelerationTime, MinPushUpSpeed, 1.f);
 		}
 		else if (MovementInput.Y < 0.f)
 		{
